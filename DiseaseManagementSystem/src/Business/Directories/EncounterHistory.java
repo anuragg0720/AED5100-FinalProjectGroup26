@@ -16,7 +16,7 @@ public class EncounterHistory {
     ArrayList<Encounter> encounterHistory;
 
     public EncounterHistory() {
-        this.encounterHistory = encounterHistory;
+        this.encounterHistory = new ArrayList<Encounter>();
     }
 
     public ArrayList<Encounter> getEncounterHistory() {

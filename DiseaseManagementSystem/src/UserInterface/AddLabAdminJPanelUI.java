@@ -53,8 +53,8 @@ public class AddLabAdminJPanelUI extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         txtLabAdminCity = new javax.swing.JComboBox<>();
         txtLabAdminHospital = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(102, 153, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -123,9 +123,6 @@ public class AddLabAdminJPanelUI extends javax.swing.JPanel {
 
         add(txtLabAdminHospital, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 300, 140, -1));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UserInterface/bg2 small.jpg"))); // NOI18N
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 830, 750));
-
         jButton3.setText("<< Back");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -133,6 +130,9 @@ public class AddLabAdminJPanelUI extends javax.swing.JPanel {
             }
         });
         add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, -1, -1));
+
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UserInterface/bg2 small.jpg"))); // NOI18N
+        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 830, 750));
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtLabAdminNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLabAdminNameActionPerformed

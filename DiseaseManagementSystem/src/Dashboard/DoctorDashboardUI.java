@@ -372,76 +372,118 @@ public class DoctorDashboardUI extends javax.swing.JPanel {
     }//GEN-LAST:event_txtTemperatureActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        int heartRate = Integer.parseInt(txtHeartRate.getText());
-        int bloodPressure = Integer.parseInt(txtBloodPressure.getText());
-        int temperature = Integer.parseInt(txtTemperature.getText());
+        // Validate all fields are filled
+    if(txtEncounterName.getText().trim().isEmpty() ||
+       txtHeartRate.getText().trim().isEmpty() ||
+       txtBloodPressure.getText().trim().isEmpty() ||
+       txtTemperature.getText().trim().isEmpty() ||
+       txtMed1.getText().trim().isEmpty() ||
+       txtMed2.getText().trim().isEmpty() ||
+       txtMed3.getText().trim().isEmpty() ||
+       txtMed1Quantity.getText().trim().isEmpty() ||
+       txtMed2Quantity.getText().trim().isEmpty() ||
+       txtMed3Quantity.getText().trim().isEmpty() ||
+       txtDiagnosis.getText().trim().isEmpty())
+    {
+        JOptionPane.showMessageDialog(this, "Please fill in all fields before adding encounter!");
+        return;
+    }
+    
+    // Validate patient is selected
+    int selectedRowIndex = tblDoctorPatientView.getSelectedRow();
+    if(selectedRowIndex < 0)
+    {
+        JOptionPane.showMessageDialog(this, "Please select a patient first!");
+        return;
+    }
+    
+    try {
+        // Parse numeric values
+        int heartRate = Integer.parseInt(txtHeartRate.getText().trim());
+        int bloodPressure = Integer.parseInt(txtBloodPressure.getText().trim());
+        int temperature = Integer.parseInt(txtTemperature.getText().trim());
+        
+        int med1Quantity = Integer.parseInt(txtMed1Quantity.getText().trim());
+        int med2Quantity = Integer.parseInt(txtMed2Quantity.getText().trim());
+        int med3Quantity = Integer.parseInt(txtMed3Quantity.getText().trim());
+        
+        // Get string values
         String tumorType = comboTumerType.getSelectedItem().toString();
         String severity = comboSeverity.getSelectedItem().toString();
         String condition = comboCondition.getSelectedItem().toString();
         String labTest = comboLabTest.getSelectedItem().toString();
         String status = comboStatus.getSelectedItem().toString();
-
-        String med1= txtMed1.getText();
-        String med2= txtMed2.getText();
-        String med3= txtMed3.getText();
-
-        int med1Quantity = Integer.parseInt(txtMed1Quantity.getText());
-        int med2Quantity = Integer.parseInt(txtMed2Quantity.getText());
-        int med3Quantity = Integer.parseInt(txtMed3Quantity.getText());
-
-        String diagnosis = txtDiagnosis.getText();
-
+        
+        String med1 = txtMed1.getText().trim();
+        String med2 = txtMed2.getText().trim();
+        String med3 = txtMed3.getText().trim();
+        
+        String diagnosis = txtDiagnosis.getText().trim();
+        
+        // Create vital signs
         VitalSigns v = new VitalSigns(heartRate, bloodPressure, temperature, tumorType, severity, condition);
-
+        
+        // Create medicines
         Medicine m1 = new Medicine(med1, med1Quantity);
         Medicine m2 = new Medicine(med2, med2Quantity);
         Medicine m3 = new Medicine(med3, med3Quantity);
-
+        
+        // Create lab test
         Laboratory lab = new Laboratory(labTest);
-
+        
+        // Create treatment
         Treatment treatment = new Treatment();
         treatment.getLaboratoryList().add(lab);
         treatment.getMedicineList().add(m1);
         treatment.getMedicineList().add(m2);
         treatment.getMedicineList().add(m3);
-
         treatment.setStatus(status);
-
-        Encounter e = new Encounter(v, treatment, diagnosis,doctor);
-        e.setEncounterName(txtEncounterName.getText());
-
-        int selectedRowIndex = tblDoctorPatientView.getSelectedRow();
-
-        if(selectedRowIndex < 0)
-        {
-            JOptionPane.showMessageDialog(this, "Please Select a Patient to add an encounter");
-            return;
-        }
-
+        
+        // Create encounter
+        Encounter e = new Encounter(v, treatment, diagnosis, doctor);
+        e.setEncounterName(txtEncounterName.getText().trim());
+        
+        // Get selected patient
         DefaultTableModel model = (DefaultTableModel) tblDoctorPatientView.getModel();
         Patient p = (Patient) model.getValueAt(selectedRowIndex, 0);
-        System.out.println(p.getName());
-
+        
+        // Add encounter to patient
         p.getEncounterHistory().add(e);
-
-        JOptionPane.showMessageDialog(this, "Encounter added");
-
+        
+        JOptionPane.showMessageDialog(this, "Encounter added successfully!");
+        
+        // Clear all fields
         txtEncounterName.setText("");
         txtHeartRate.setText("");
         txtBloodPressure.setText("");
         txtTemperature.setText("");
-
         txtMed1.setText("");
         txtMed2.setText("");
         txtMed3.setText("");
-
         txtMed1Quantity.setText("");
         txtMed2Quantity.setText("");
         txtMed3Quantity.setText("");
-
         txtDiagnosis.setText("");
-
+        
+        // Refresh table
         populateDoctorPatientEncounterTable();
+        
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, 
+            "Please enter valid numbers for:\n" +
+            "- Heart Rate\n" +
+            "- Blood Pressure\n" +
+            "- Temperature\n" +
+            "- Medicine Quantities", 
+            "Invalid Input", 
+            JOptionPane.ERROR_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, 
+            "Error creating encounter: " + ex.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace(); 
+    }
 
     }//GEN-LAST:event_jButton3ActionPerformed
 

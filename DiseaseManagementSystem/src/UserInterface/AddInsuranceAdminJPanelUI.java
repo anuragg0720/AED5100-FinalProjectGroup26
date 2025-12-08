@@ -147,7 +147,7 @@ public class AddInsuranceAdminJPanelUI extends javax.swing.JPanel {
 
             InsuranceAdmin ia = ecosystem.getInsuranceAdminList().addInsuranceAdmin();
 
-            ia.setName(name);;
+            ia.setName(name);
             ia.setUsername(username);
             ia.setPassword(password);
             ia.setPremium(premium);
