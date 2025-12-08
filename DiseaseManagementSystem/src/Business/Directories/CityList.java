@@ -43,6 +43,13 @@ public class CityList {
         return null;
     }
     
+    public City addCity(String cityName){
+    City c = new City();
+    c.setCityName(cityName);
+    cityList.add(c);
+    return c;
+}
+    
     
     
 }
