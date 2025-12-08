@@ -118,44 +118,100 @@ public class AddHospitalAdminJPanelUI extends javax.swing.JPanel {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        String name = txtHospitalAdminName.getText();
-        String username = txtHospitalAdminUsername.getText();
-        String password = txtHospitalAdminPassword.getText();
-        String city = txtHospitalAdminCIty.getSelectedItem().toString();
-        String location = txtHospitalAdminLocation.getText();
-
-        if(name.isEmpty() || username.isEmpty() || password.isEmpty() || city.isEmpty() || location.isEmpty())
-        {
-            JOptionPane.showMessageDialog(this, "Enter all mandatory fields");
-
-        }
-
-        else {
-
-            for(Hospital h : ecosystem.getHospitalList().getHospitalList())
-            {
-                if((h.getUsername().equalsIgnoreCase(username))&& (h.getPassword().equalsIgnoreCase(password)))
-                {
-
-                    JOptionPane.showMessageDialog(this, "HOspital Admin's Username and password should be unique");
-                    return;
-
-                }
+String name = txtHospitalAdminName.getText().trim();
+    String username = txtHospitalAdminUsername.getText().trim();
+    String password = txtHospitalAdminPassword.getText().trim();
+    String location = txtHospitalAdminLocation.getText().trim();
+    
+    // Validate all fields are filled
+    if(name.isEmpty() || username.isEmpty() || password.isEmpty() || location.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this, 
+            "Please fill in all fields!", 
+            "Input Error",
+            JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+    
+    // Validate city is selected
+    if(txtHospitalAdminCIty.getSelectedItem() == null) {
+        JOptionPane.showMessageDialog(
+            this, 
+            "Please select a city! If no cities are available, please add a city first.", 
+            "Input Error",
+            JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+    
+    String city = txtHospitalAdminCIty.getSelectedItem().toString();
+    
+    try {
+        // Check for duplicate username (with null check)
+        for(Hospital h : ecosystem.getHospitalList().getHospitalList()) {
+            if(h.getUsername() != null && h.getUsername().equalsIgnoreCase(username)) {
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "Username '" + username + "' already exists! Please choose a different username.", 
+                    "Duplicate Username",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
             }
-
-            City c = ecosystem.getCityList().findCityByCityName(city);
-
-            Hospital h = ecosystem.getHospitalList().addHospital();
-            h.setHospitalName(name);
-            h.setUsername(username);
-            h.setPassword(password);
-            h.setCity(c);
-            h.setLocation(location);
-
-            JOptionPane.showMessageDialog(this, "Hospital and Hospital Admin Created");
-
         }
-
+        
+        // Find the selected city
+        City c = ecosystem.getCityList().findCityByCityName(city);
+        if(c == null) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Selected city not found!", 
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        
+        // Create and save hospital
+        Hospital h = ecosystem.getHospitalList().addHospital();
+        h.setHospitalName(name);
+        h.setUsername(username);
+        h.setPassword(password);
+        h.setCity(c);
+        h.setLocation(location);
+        
+        // Show success message
+        JOptionPane.showMessageDialog(
+            this, 
+            "Hospital '" + name + "' and Hospital Admin created successfully!", 
+            "Success",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+        
+        // Clear all fields
+        txtHospitalAdminName.setText("");
+        txtHospitalAdminUsername.setText("");
+        txtHospitalAdminPassword.setText("");
+        txtHospitalAdminLocation.setText("");
+        if(txtHospitalAdminCIty.getItemCount() > 0) {
+            txtHospitalAdminCIty.setSelectedIndex(0);
+        }
+        
+        // Navigate back to previous screen
+        CardLayout cardLayout = (CardLayout) workArea.getLayout();
+        workArea.remove(this);
+        cardLayout.previous(workArea);
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(
+            this, 
+            "Error saving hospital: " + e.getMessage(), 
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+        e.printStackTrace();
+    }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void txtHospitalAdminCItyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHospitalAdminCItyActionPerformed
@@ -186,14 +242,24 @@ CardLayout cardLayout = (CardLayout) workArea.getLayout();
     private javax.swing.JTextField txtHospitalAdminUsername;
     // End of variables declaration//GEN-END:variables
 
-    private void populateCombo() {
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        
-        if(!ecosystem.getCityList().getCityList().isEmpty()){
-            for(City c: ecosystem.getCityList().getCityList()){
-                txtHospitalAdminCIty.addItem(c.getCityName());
-            }
-        }
+   private void populateCombo() {
+    // Clear existing items first
+    txtHospitalAdminCIty.removeAllItems();
     
+    // Check if there are any cities
+    if(ecosystem.getCityList().getCityList().isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this, 
+            "No cities found! Please add a city first before creating a hospital.", 
+            "No Cities Available",
+            JOptionPane.WARNING_MESSAGE
+        );
+        return;
     }
+    
+    // Populate combo box with cities
+    for(City c : ecosystem.getCityList().getCityList()) {
+        txtHospitalAdminCIty.addItem(c.getCityName());
+    }
+}
 }

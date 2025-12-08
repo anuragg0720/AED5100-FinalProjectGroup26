@@ -7,7 +7,7 @@ package UserInterface;
 import Business.Ecosystem;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
-
+import Business.Model.City;
 /**
  *
  * @author agnel
@@ -109,7 +109,62 @@ CardLayout cardLayout = (CardLayout) workArea.getLayout();
     }//GEN-LAST:event_txtCItyName1ActionPerformed
 
     private void btnSaveCityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveCityActionPerformed
-        // TODO add your handling code here:
+        String cityName = txtCItyName1.getText().trim();
+    
+    // Validate input
+    if (cityName.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this, 
+            "Please enter a city name!", 
+            "Input Error", 
+            javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+    
+    try {
+        // Check if city already exists
+        City existingCity = ecosystem.getCityList().findCityByCityName(cityName);
+        if (existingCity != null) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this, 
+                "City '" + cityName + "' already exists!", 
+                "Duplicate Entry", 
+                javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        
+        // Add city to ecosystem with name
+        City newCity = ecosystem.getCityList().addCity(cityName);
+        
+        // Show success message
+        javax.swing.JOptionPane.showMessageDialog(
+            this, 
+            "City '" + cityName + "' added successfully!", 
+            "Success", 
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+        
+        // Clear the text field
+        txtCItyName1.setText("");
+        
+        // Optional: Navigate back to previous screen
+        CardLayout cardLayout = (CardLayout) workArea.getLayout();
+        workArea.remove(this);
+        cardLayout.previous(workArea);
+        
+    } catch (Exception e) {
+        // Handle any errors
+        javax.swing.JOptionPane.showMessageDialog(
+            this, 
+            "Error saving city: " + e.getMessage(), 
+            "Error", 
+            javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+        e.printStackTrace();
+    }
+// TODO add your handling code here:
     }//GEN-LAST:event_btnSaveCityActionPerformed
 
 

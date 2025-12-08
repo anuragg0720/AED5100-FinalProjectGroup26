@@ -104,7 +104,7 @@ public class NGOAdminDashboardUI extends javax.swing.JPanel {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 580, 198, -1));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 580, 198, -1));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
@@ -131,30 +131,70 @@ public class NGOAdminDashboardUI extends javax.swing.JPanel {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
-        int selectedRowIndex = tblNGOAdminPatientEncounter.getSelectedRow();
+        System.out.println("=== SPONSOR MEDICAL BILL CLICKED ===");
+    
+    int selectedRowIndex = tblNGOAdminPatientEncounter.getSelectedRow();
 
-        if(selectedRowIndex < 0)
-        {
-            JOptionPane.showMessageDialog(this, "Please Select a row of Encounter table");
-            return;
+    if(selectedRowIndex < 0)
+    {
+        JOptionPane.showMessageDialog(this, "Please select an encounter from the table");
+        return;
+    }
+    
+    DefaultTableModel model = (DefaultTableModel) tblNGOAdminPatientEncounter.getModel();
+    Encounter e = (Encounter) model.getValueAt(selectedRowIndex, 0);
+
+    if(selectedPatient == null)
+    {
+        JOptionPane.showMessageDialog(this, "Please click 'View Medical Bills' first!");
+        return;
+    }
+    
+    System.out.println("Patient: " + selectedPatient.getName());
+    System.out.println("Patient Email: " + selectedPatient.getEmail());
+    System.out.println("Medicine Status: " + e.getTreatment().getMedicineStatus());
+
+    if(e.getTreatment().getMedicineStatus().equalsIgnoreCase("Completed"))
+    {
+        JOptionPane.showMessageDialog(this, "This medical bill is already sponsored!");
+        return;
+    }
+    
+    e.getTreatment().setMedicineStatus("Completed");
+    
+    if(selectedPatient.getEmail() != null && !selectedPatient.getEmail().trim().isEmpty())
+    {
+        try {
+            System.out.println("=== SENDING EMAIL ===");
+            
+            sendMail.send(
+                selectedPatient.getEmail(), 
+                "Your NGO Sponsorship Results!", 
+                "Dear " + selectedPatient.getName() + ",\n\n" +
+                "Congratulations! You have been sponsored by the NGO: " + nGOAdmin.getName() + "\n\n" +
+                "Encounter: " + e.getEncounterName() + "\n" +
+                "Medicine Status: Completed (Sponsored)\n\n" +
+                "Thank you!"
+            );
+            
+            System.out.println("✅ EMAIL SENT!");
+            JOptionPane.showMessageDialog(this, 
+                "Patient sponsored successfully!\nEmail sent to: " + selectedPatient.getEmail());
+            
+        } catch(Exception exp) {
+            System.err.println("❌ EMAIL ERROR: " + exp.getMessage());
+            exp.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Sponsored, but email failed: " + exp.getMessage());
         }
-        DefaultTableModel model = (DefaultTableModel) tblNGOAdminPatientEncounter.getModel();
-        Encounter e = (Encounter) model.getValueAt(selectedRowIndex, 0);
-
-        if(!e.getTreatment().getMedicineStatus().equalsIgnoreCase("Completed"))
-        {
-            e.getTreatment().setMedicineStatus("Completed");
-            try{
-                sendMail.send(selectedPatient.getEmail(), "Your NGO sponsorship results are here !!!!!", "Congratulations you have been sponsored by the NGO : "+nGOAdmin.getName() + "\n The status of the same has been reflected in the table");
-            }
-            catch(Exception exp){
-                
-            }
-            JOptionPane.showMessageDialog(this, "You have sponsored the selected patient");
-
-            populateNGODashboardTable();
-
-        }
+    }
+    else
+    {
+        JOptionPane.showMessageDialog(this, 
+            "Patient sponsored!\n(No email - patient didn't provide email address)");
+    }
+    
+        populateNGODashboardTable();
 
     }//GEN-LAST:event_jButton2ActionPerformed
 

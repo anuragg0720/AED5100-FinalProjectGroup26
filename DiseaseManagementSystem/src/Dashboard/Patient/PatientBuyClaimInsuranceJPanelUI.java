@@ -113,30 +113,43 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         if(txtPatientEmail.getText().isEmpty()){
-            JOptionPane.showMessageDialog(this, "Please enter your email address to be ascertained about the status of your claim");
-        }
-        else{
-        int selectedRowIndex =tblPatientInsurance .getSelectedRow();
-
+        JOptionPane.showMessageDialog(this, "Please enter your email address to be ascertained about the status of your claim");
+    }
+    else{
+        int selectedRowIndex = tblPatientInsurance.getSelectedRow();
         if(selectedRowIndex < 0)
         {
             JOptionPane.showMessageDialog(this, "Please Select a row of Encounter table");
             return;
         }
-
         DefaultTableModel model = (DefaultTableModel) tblPatientInsurance.getModel();
-
         InsuranceAdmin ia = (InsuranceAdmin) model.getValueAt(selectedRowIndex, 0);
-
         ia.getInsurancePatientList().add(patient);
-
         patient.setInsuranceRequest("Pending");
-
         patient.setInsuranceAdmin(ia);
-        
         patient.setEmail(txtPatientEmail.getText());
         
-        JOptionPane.showMessageDialog(this, "Insurance Request is raised");
+        // SEND EMAIL
+        try {
+            Business.sendMail.send(
+                txtPatientEmail.getText(),
+                "Insurance Purchase Request Submitted",
+                "Dear " + patient.getName() + ",\n\n" +
+                "Your insurance purchase request has been submitted successfully!\n\n" +
+                "Request Details:\n" +
+                "- Insurance Provider: " + ia.getName() + "\n" +
+                "- Premium: $" + ia.getPremium() + "\n" +
+                "- Coverage: $" + ia.getCoverage() + "\n" +
+                "- Status: Pending Approval\n\n" +
+                "You will receive another email once your request is approved.\n\n" +
+                "Thank you for choosing our insurance service!"
+            );
+            System.out.println("✅ Buy Insurance email sent to: " + txtPatientEmail.getText());
+        } catch(Exception exp) {
+            System.err.println("Email failed: " + exp.getMessage());
+        }
+        
+        JOptionPane.showMessageDialog(this, "Insurance Request is raised\nConfirmation sent to: " + txtPatientEmail.getText());
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -156,7 +169,6 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
         return;
     }
     
-    // Check if patient has insurance
     if (patient.getInsuranceAdmin() == null) {
         JOptionPane.showMessageDialog(this, 
             "You don't have any insurance policy. Please buy insurance first.", 
@@ -165,7 +177,6 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
         return;
     }
     
-    // Check current insurance request status
     String currentStatus = patient.getInsuranceRequest();
     
     if ("Claimed".equals(currentStatus)) {
@@ -184,7 +195,6 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
         return;
     }
     
-    // Process the claim
     int confirm = JOptionPane.showConfirmDialog(this, 
         "Do you want to claim insurance from:\n\n" +
         "Insurance: " + patient.getInsuranceAdmin().getName() + "\n" +
@@ -196,9 +206,27 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
         JOptionPane.QUESTION_MESSAGE);
     
     if (confirm == JOptionPane.YES_OPTION) {
-        // Update patient claim status
         patient.setInsuranceRequest("Claimed");
         patient.setEmail(txtPatientEmail.getText());
+        
+        // SEND EMAIL
+        try {
+            Business.sendMail.send(
+                txtPatientEmail.getText(),
+                "Insurance Claim Submitted Successfully",
+                "Dear " + patient.getName() + ",\n\n" +
+                "Your insurance claim has been submitted successfully!\n\n" +
+                "Claim Details:\n" +
+                "- Insurance Provider: " + patient.getInsuranceAdmin().getName() + "\n" +
+                "- Coverage Amount: $" + patient.getInsuranceAdmin().getCoverage() + "\n" +
+                "- Status: Claimed\n\n" +
+                "Our team will process your claim shortly.\n\n" +
+                "Thank you for choosing our service!"
+            );
+            System.out.println("✅ Claim Insurance email sent to: " + txtPatientEmail.getText());
+        } catch(Exception exp) {
+            System.err.println("Claim email failed: " + exp.getMessage());
+        }
         
         JOptionPane.showMessageDialog(this, 
             "Insurance claim submitted successfully!\n\n" +
@@ -207,14 +235,11 @@ public class PatientBuyClaimInsuranceJPanelUI extends javax.swing.JPanel {
             "Insurance: " + patient.getInsuranceAdmin().getName() + "\n" +
             "Coverage: " + patient.getInsuranceAdmin().getCoverage() + "\n" +
             "Status: Claimed\n\n" +
-            "Confirmation will be sent to: " + txtPatientEmail.getText(),
+            "Confirmation sent to: " + txtPatientEmail.getText(),
             "Claim Successful", 
             JOptionPane.INFORMATION_MESSAGE);
         
-        // Clear the email field
         txtPatientEmail.setText("");
-        
-        // Optionally refresh the table
         populateInsuranceTable();
     }
     }//GEN-LAST:event_jButton3ActionPerformed
